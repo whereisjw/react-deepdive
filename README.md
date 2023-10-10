@@ -1,70 +1,206 @@
-# Getting Started with Create React App
+# 마우스 커서 따라가기 구현
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+```
+function AppXY() {
+  const [x, setX] = useState(0);
+  const [y, setY] = useState(0);
+  return (
+    <>
+      <div
+        className="container"
+        onPointerMove={(e) => {
+          console.log(e.clientX, e.clientY);
+          setX(e.clientX);
+          setY(e.clientY);
+        }}>
+        <div
+          className="pointer"
+          style={{ transform: `translate(${x}px,${y}px)` }}></div>
+      </div>
+    </>
+  );
+}
+```
 
-## Available Scripts
+위처럼 구현이 가능하지만
 
-In the project directory, you can run:
+```
 
-### `npm start`
+function AppXY() {
+  const [position, setPosition] = useState({ x: 0, y: 0 });
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+  return (
+    <>
+      <div
+        className="container"
+        onPointerMove={(e) => {
+          console.log(e.clientX, e.clientY);
+          setPosition({ x: e.clientX, y: e.clientY });
+        }}>
+        <div
+          className="pointer"
+          style={{
+            transform: `translate(${position.x}px,${position.y}px)`,
+          }}></div>
+      </div>
+    </>
+  );
+}
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+x y 좌표를 객체로 묶어서 usestate안으로 값을 넣을 수 있다.
 
-### `npm test`
+# 중첩객체상태관리(프롬프트값 반영, 멘토바꾸기)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```
+import React, { useState } from "react";
 
-### `npm run build`
+export default function AppMentor(props) {
+  const [person, setPerson] = useState({
+    name: "엘리",
+    title: "개발자",
+    mentor: {
+      name: "밥",
+      title: "시니어개발자",
+    },
+  });
+  return (
+    <div>
+      <h1>
+        {person.name}는 {person.title}
+      </h1>
+      <p>
+        {person.name}의 멘토는 {person.mentor.name} ({person.mentor.title})
+      </p>
+      <button
+        onClick={() => {
+          const name = prompt(`what's your mentor's name?`);
+          setPerson((prev) => ({
+            ...prev,
+            mentor: { ...prev.mentor, name },
+          }));
+        }}>
+        멘토 이름 바꾸기
+      </button>
+      <button
+        onClick={(e) => {
+          const title = prompt(`what's your mentor's title?`);
+          setPerson((prev) => ({
+            ...prev,
+            mentor: { ...prev.mentor, title },
+          }));
+        }}>
+        멘토 타이틀 바꾸기
+      </button>
+    </div>
+  );
+}
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+# 배열상태관리
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```
+import React, { useState } from "react";
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+const Appmentors = () => {
+  const [person, setPerson] = useState({
+    name: "엘리",
+    title: "개발자",
+    mentors: [
+      {
+        name: "밥",
+        title: "시니어개발자",
+      },
+      {
+        name: "제임스",
+        title: "시니어개발자",
+      },
+    ],
+  });
+  return (
+    <div>
+      <h1>
+        {person.name}는 {person.title}
+      </h1>
+      <p>{person.name}의 멘토는:</p>
+      <ul>
+        {person.mentors.map((mentor, index) => (
+          <li key={index}>
+            {mentor.name} ({mentor.title})
+          </li>
+        ))}
+      </ul>
+      <button
+        onClick={() => {
+          const prev = prompt(`누구의 이름을 바꾸고 싶은가요?`);
+          const current = prompt(`이름을 무엇으로 바꾸고 싶은가요?`);
+          setPerson((person) => ({
+            ...person,
+            mentors: person.mentors.map((v) => {
+              return v.name == prev ? { ...v, name: current } : { ...v };
+            }),
+          }));
+        }}>
+        멘토의 이름을 바꾸기
+      </button>
+      <button
+        onClick={() => {
+          const name = prompt("추가하고 싶은 멘토의 이름은?");
+          const title = prompt("추가하고 싶은 멘토의 타이틀은?");
 
-### `npm run eject`
+          setPerson((person) => ({
+            ...person,
+            mentors: [{ name, title }, ...person.mentors],
+          }));
+        }}>
+        멘토추가하기
+      </button>
+      <button
+        onClick={() => {
+          const delName = prompt(`누구를 삭제하고 싶은가요?`);
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+          setPerson((person) => ({
+            ...person,
+            mentors: person.mentors.filter((v) => {
+              return v.name !== delName;
+            }),
+          }));
+        }}>
+        멘토삭제하기
+      </button>
+    </div>
+  );
+};
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+export default Appmentors;
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+# immer
 
-## Learn More
+npm add immer use-immer
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+# context api
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+언어,테마(다크모드),로그인
 
-### Code Splitting
+```
+import React, { createContext, useState } from "react";
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+export const DarkModeContext = createContext();
+export function DarkModeProvider({ children }) {
+  const [darkMode, setDarkMode] = useState(false);
+  const toggleDarkMode = () => {
+    setDarkMode((prev) => {
+      !prev;
+    });
+  };
+  return (
+    <DarkModeContext.Provider value={{ darkMode, toggleDarkMode }}>
+      {children}
+    </DarkModeContext.Provider>
+  );
+}
+```
 
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+darkmodecontext를 받을 jsx파일을 하나 만들어서 위와같이 작성한다

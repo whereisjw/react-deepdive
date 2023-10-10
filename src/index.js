@@ -1,6 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import AppXY from "./AppXY";
+
+import Appwrap from "./Appwrap";
+import AppTheme from "./AppTheme";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<AppXY />);
+root.render(<AppTheme />);
